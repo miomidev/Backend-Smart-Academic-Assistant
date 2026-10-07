@@ -6,6 +6,7 @@ import {
   Get,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
   Put,
   Query,
@@ -62,6 +63,16 @@ export class NotesController {
   @ApiOperation({ summary: 'Pratinjau deteksi pintar auto-tag mata kuliah sebelum disimpan' })
   @ApiResponse({ status: 200, description: 'Hasil deteksi auto-tag berhasil dihitung' })
   async previewAutoTag(
+    @CurrentUser() user: AuthUser,
+    @Body() dto: PreviewAutoTagDto,
+  ) {
+    return this.notesService.previewAutoTag(user.id, dto);
+  }
+
+  @Post('suggest-course')
+  @ApiOperation({ summary: 'Saran mata kuliah otomatis dari teks transkrip / catatan (alias PRD)' })
+  @ApiResponse({ status: 200, description: 'Hasil deteksi auto-tag berhasil dihitung' })
+  async suggestCourse(
     @CurrentUser() user: AuthUser,
     @Body() dto: PreviewAutoTagDto,
   ) {
@@ -138,9 +149,20 @@ export class NotesController {
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Perbarui judul, isi, atau mata kuliah catatan' })
+  @ApiOperation({ summary: 'Perbarui judul, isi, atau mata kuliah catatan (PUT)' })
   @ApiResponse({ status: 200, description: 'Catatan berhasil diperbarui' })
   async update(
+    @CurrentUser() user: AuthUser,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateNoteDto,
+  ) {
+    return this.notesService.update(user.id, id, dto);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Perbarui judul, isi, atau mata kuliah catatan (PATCH)' })
+  @ApiResponse({ status: 200, description: 'Catatan berhasil diperbarui' })
+  async patch(
     @CurrentUser() user: AuthUser,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateNoteDto,

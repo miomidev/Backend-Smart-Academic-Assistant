@@ -27,4 +27,14 @@ export class UsersService {
       data: dto,
     });
   }
+
+  async deleteAccount(userId: string) {
+    await this.getProfile(userId);
+    await this.prisma.user.delete({
+      where: { id: userId },
+    });
+    return {
+      message: 'Akun dan seluruh data pengguna berhasil dihapus',
+    };
+  }
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Patch } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
@@ -25,5 +25,12 @@ export class UsersController {
     @Body() dto: UpdateUserDto,
   ) {
     return this.usersService.updateProfile(user.id, dto);
+  }
+
+  @Delete()
+  @ApiOperation({ summary: 'Hapus akun dan seluruh data pengguna' })
+  @ApiResponse({ status: 200, description: 'Akun berhasil dihapus' })
+  async deleteAccount(@CurrentUser() user: AuthUser) {
+    return this.usersService.deleteAccount(user.id);
   }
 }

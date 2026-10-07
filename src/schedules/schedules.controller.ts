@@ -15,6 +15,7 @@ import { SchedulesService } from './schedules.service.js';
 import { CreateScheduleDto } from './dto/create-schedule.dto.js';
 import { UpdateScheduleDto } from './dto/update-schedule.dto.js';
 import { QueryScheduleDto } from './dto/query-schedule.dto.js';
+import { BulkCreateScheduleDto } from './dto/bulk-create-schedule.dto.js';
 import { CurrentUser, type AuthUser } from '../common/decorators/current-user.decorator.js';
 
 @ApiTags('Schedules')
@@ -43,6 +44,16 @@ export class SchedulesController {
     return this.schedulesService.create(user.id, dto);
   }
 
+  @Post('bulk')
+  @ApiOperation({ summary: 'Simpan daftar jadwal perkuliahan secara massal (hasil review RPS)' })
+  @ApiResponse({ status: 201, description: 'Daftar jadwal massal berhasil disimpan' })
+  async bulkCreate(
+    @CurrentUser() user: AuthUser,
+    @Body() dto: BulkCreateScheduleDto,
+  ) {
+    return this.schedulesService.bulkCreate(user.id, dto);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Ambil detail jadwal berdasarkan ID' })
   @ApiResponse({ status: 200, description: 'Detail jadwal berhasil diambil' })
@@ -54,9 +65,20 @@ export class SchedulesController {
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Perbarui informasi jadwal' })
+  @ApiOperation({ summary: 'Perbarui informasi jadwal (PUT)' })
   @ApiResponse({ status: 200, description: 'Jadwal berhasil diperbarui' })
   async update(
+    @CurrentUser() user: AuthUser,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateScheduleDto,
+  ) {
+    return this.schedulesService.update(user.id, id, dto);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Perbarui informasi jadwal (PATCH)' })
+  @ApiResponse({ status: 200, description: 'Jadwal berhasil diperbarui' })
+  async patch(
     @CurrentUser() user: AuthUser,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateScheduleDto,
@@ -68,6 +90,16 @@ export class SchedulesController {
   @ApiOperation({ summary: 'Toggle status penyelesaian tugas (isCompleted true/false)' })
   @ApiResponse({ status: 200, description: 'Status penyelesaian jadwal berhasil diubah' })
   async toggle(
+    @CurrentUser() user: AuthUser,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.schedulesService.toggle(user.id, id);
+  }
+
+  @Patch(':id/complete')
+  @ApiOperation({ summary: 'Tandai selesai / belum selesai (alias toggle)' })
+  @ApiResponse({ status: 200, description: 'Status penyelesaian jadwal berhasil diubah' })
+  async complete(
     @CurrentUser() user: AuthUser,
     @Param('id', ParseUUIDPipe) id: string,
   ) {

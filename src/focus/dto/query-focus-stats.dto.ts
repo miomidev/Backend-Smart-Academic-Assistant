@@ -11,4 +11,13 @@ export class QueryFocusStatsDto {
   @IsIn(['today', 'week', 'month', 'all'], { message: 'period harus salah satu dari: today, week, month, all' })
   @IsOptional()
   period?: 'today' | 'week' | 'month' | 'all' = 'today';
+
+  @ApiPropertyOptional({
+    description: 'Alias untuk period sesuai PRD (today, week, month, all)',
+    example: 'week',
+    enum: ['today', 'week', 'month', 'all'],
+  })
+  @IsIn(['today', 'week', 'month', 'all'])
+  @IsOptional()
+  range?: 'today' | 'week' | 'month' | 'all';
 }

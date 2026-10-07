@@ -38,11 +38,49 @@ export class FocusController {
     @CurrentUser() user: AuthUser,
     @Query() query: QueryFocusStatsDto,
   ) {
-    return this.focusService.getStats(user.id, query.period);
+    return this.focusService.getStats(user.id, query.range || query.period);
   }
 
   @Get('sessions')
   @ApiOperation({ summary: 'Ambil daftar riwayat sesi fokus dengan pagination' })
+  @ApiResponse({ status: 200, description: 'Daftar sesi fokus berhasil diambil' })
+  async findAll(
+    @CurrentUser() user: AuthUser,
+    @Query() query: QueryFocusSessionsDto,
+  ) {
+    return this.focusService.findAll(user.id, query);
+  }
+}
+
+@ApiTags('Focus Sessions (PRD Alias)')
+@ApiBearerAuth()
+@Controller('focus-sessions')
+export class FocusSessionsController {
+  constructor(private readonly focusService: FocusService) {}
+
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Simpan riwayat sesi fokus Pomodoro (alias PRD)' })
+  @ApiResponse({ status: 201, description: 'Sesi fokus berhasil dicatat' })
+  async recordSession(
+    @CurrentUser() user: AuthUser,
+    @Body() dto: RecordSessionDto,
+  ) {
+    return this.focusService.recordSession(user.id, dto);
+  }
+
+  @Get('stats')
+  @ApiOperation({ summary: 'Ambil ringkasan statistik fokus (alias PRD)' })
+  @ApiResponse({ status: 200, description: 'Statistik fokus berhasil diambil' })
+  async getStats(
+    @CurrentUser() user: AuthUser,
+    @Query() query: QueryFocusStatsDto,
+  ) {
+    return this.focusService.getStats(user.id, query.range || query.period);
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Ambil riwayat sesi fokus (alias PRD)' })
   @ApiResponse({ status: 200, description: 'Daftar sesi fokus berhasil diambil' })
   async findAll(
     @CurrentUser() user: AuthUser,

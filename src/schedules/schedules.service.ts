@@ -7,6 +7,7 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateScheduleDto } from './dto/create-schedule.dto.js';
 import { UpdateScheduleDto } from './dto/update-schedule.dto.js';
 import { QueryScheduleDto } from './dto/query-schedule.dto.js';
+import { BulkCreateScheduleDto } from './dto/bulk-create-schedule.dto.js';
 
 @Injectable()
 export class SchedulesService {
@@ -204,6 +205,49 @@ export class SchedulesService {
 
     return {
       message: 'Jadwal berhasil dihapus',
+    };
+  }
+
+  async bulkCreate(userId: string, dto: BulkCreateScheduleDto) {
+    const course = await this.prisma.course.findFirst({
+      where: { id: dto.courseId, userId, deletedAt: null },
+    });
+
+    if (!course) {
+      throw new BadRequestException({
+        code: 'INVALID_COURSE',
+        message: 'Mata kuliah tidak ditemukan atau tidak valid',
+      });
+    }
+
+    if (dto.replaceExistingFromRps !== false) {
+      await this.prisma.schedule.deleteMany({
+        where: {
+          courseId: dto.courseId,
+          source: 'RPS',
+        },
+      });
+    }
+
+    const createdSchedules = await Promise.all(
+      dto.items.map((item) =>
+        this.prisma.schedule.create({
+          data: {
+            courseId: dto.courseId,
+            title: item.title,
+            type: item.type,
+            meetingNumber: item.meetingNumber ?? item.meeting ?? null,
+            dueDate: new Date(item.dueDate),
+            reminderMinutes: item.reminderMinutes ?? 60,
+            source: 'RPS',
+          },
+        }),
+      ),
+    );
+
+    return {
+      created: createdSchedules.length,
+      schedules: createdSchedules,
     };
   }
 }
