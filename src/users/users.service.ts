@@ -1,0 +1,30 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service.js';
+import { UpdateUserDto } from './dto/update-user.dto.js';
+
+@Injectable()
+export class UsersService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async getProfile(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException({
+        code: 'USER_NOT_FOUND',
+        message: 'Pengguna tidak ditemukan',
+      });
+    }
+
+    return user;
+  }
+
+  async updateProfile(userId: string, dto: UpdateUserDto) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: dto,
+    });
+  }
+}

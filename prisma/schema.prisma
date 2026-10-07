@@ -1,0 +1,155 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ScheduleType {
+  CLASS
+  TASK
+  EXAM
+}
+
+enum NoteType {
+  VOICE
+  DOCUMENT
+}
+
+enum FocusStatus {
+  COMPLETED
+  FAILED
+}
+
+enum FailReason {
+  USER_GAVE_UP
+  UNPINNED
+  APP_BACKGROUNDED
+  SYSTEM_KILLED
+}
+
+model User {
+  id          String   @id @default(uuid()) @db.Uuid
+  firebaseUid String   @unique @map("firebase_uid")
+  email       String   @unique
+  name        String
+  photoUrl    String?  @map("photo_url")
+  university  String?
+  timezone    String   @default("Asia/Jakarta")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  courses       Course[]
+  notes         Note[]
+  focusSessions FocusSession[]
+
+  @@map("users")
+}
+
+model Course {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  name      String
+  code      String?
+  lecturer  String?
+  colorCode String    @map("color_code") @db.VarChar(7)
+  startDate DateTime? @map("start_date") @db.Date
+  keywords  String[]  @default([])
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz
+
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  slots     CourseSlot[]
+  schedules Schedule[]
+  notes     Note[]
+
+  @@index([userId])
+  @@map("courses")
+}
+
+model CourseSlot {
+  id        String @id @default(uuid()) @db.Uuid
+  courseId  String @map("course_id") @db.Uuid
+  dayOfWeek Int    @map("day_of_week") @db.SmallInt
+  startTime String @map("start_time") @db.VarChar(5)
+  endTime   String @map("end_time") @db.VarChar(5)
+  room      String?
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId])
+  @@map("course_slots")
+}
+
+model Schedule {
+  id              String       @id @default(uuid()) @db.Uuid
+  courseId        String       @map("course_id") @db.Uuid
+  title           String
+  type            ScheduleType
+  meetingNumber   Int?         @map("meeting_number") @db.SmallInt
+  dueDate         DateTime     @map("due_date") @db.Timestamptz
+  isCompleted     Boolean      @default(false) @map("is_completed")
+  reminderMinutes Int          @default(60) @map("reminder_minutes")
+  source          String       @default("MANUAL")
+  createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime     @updatedAt @map("updated_at") @db.Timestamptz
+
+  course        Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  focusSessions FocusSession[]
+
+  @@index([courseId])
+  @@index([dueDate])
+  @@map("schedules")
+}
+
+model Note {
+  id                String    @id @db.Uuid // dibuat di client (idempoten)
+  userId            String    @map("user_id") @db.Uuid
+  courseId          String?   @map("course_id") @db.Uuid
+  title             String
+  content           String?   @db.Text
+  type              NoteType
+  language          String?   @db.VarChar(5)
+  durationSeconds   Int?      @map("duration_seconds")
+  fileUrl           String?   @map("file_url")
+  fileName          String?   @map("file_name")
+  mimeType          String?   @map("mime_type")
+  fileSize          Int?      @map("file_size")
+  suggestedCourseId String?   @map("suggested_course_id") @db.Uuid
+  confidenceScore   Float?    @map("confidence_score")
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt         DateTime? @map("deleted_at") @db.Timestamptz
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course? @relation(fields: [courseId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([courseId])
+  @@map("notes")
+}
+
+model FocusSession {
+  id             String      @id @db.Uuid // dibuat di client (idempoten)
+  userId         String      @map("user_id") @db.Uuid
+  scheduleId     String?     @map("schedule_id") @db.Uuid
+  plannedSeconds Int         @map("planned_seconds")
+  actualSeconds  Int         @map("actual_seconds")
+  status         FocusStatus
+  failReason     FailReason? @map("fail_reason")
+  startedAt      DateTime    @map("started_at") @db.Timestamptz
+  endedAt        DateTime    @map("ended_at") @db.Timestamptz
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  schedule Schedule? @relation(fields: [scheduleId], references: [id], onDelete: SetNull)
+
+  @@index([userId, startedAt])
+  @@map("focus_sessions")
+}
+
