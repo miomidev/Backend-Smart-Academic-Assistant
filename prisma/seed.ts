@@ -19,7 +19,7 @@ async function main() {
     data: {
       firebaseUid: 'dev-firebase-uid-001',
       email: 'mahasiswa@unsil.ac.id',
-      name: 'Mahasiswa UNSIL Dev',
+      name: 'Tim Udah Pasti Menang',
       university: 'Universitas Siliwangi',
       timezone: 'Asia/Jakarta',
     },

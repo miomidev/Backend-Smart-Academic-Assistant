@@ -57,7 +57,7 @@ export class AuthGuard implements CanActivate {
           data: {
             firebaseUid: decoded.uid,
             email: decoded.email,
-            name: decoded.name || 'Mahasiswa UNSIL',
+            name: decoded.name || 'Tim Udah Pasti Menang',
             photoUrl: decoded.picture || null,
             university: 'Universitas Siliwangi',
             timezone: 'Asia/Jakarta',

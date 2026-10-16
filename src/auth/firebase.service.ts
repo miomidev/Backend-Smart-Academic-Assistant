@@ -63,7 +63,7 @@ export class FirebaseService {
         return {
           uid: 'dev-firebase-uid-001',
           email: 'mahasiswa@unsil.ac.id',
-          name: 'Mahasiswa UNSIL Dev',
+          name: 'Tim Udah Pasti Menang',
           picture: null as any,
         };
       }

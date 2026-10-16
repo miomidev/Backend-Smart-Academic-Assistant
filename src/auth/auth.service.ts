@@ -23,7 +23,7 @@ export class AuthService {
       create: {
         firebaseUid: decoded.uid,
         email: decoded.email,
-        name: dto.name || decoded.name || 'Mahasiswa UNSIL',
+        name: dto.name || decoded.name || 'Tim Udah Pasti Menang',
         photoUrl: decoded.picture || null,
         university: dto.university || 'Universitas Siliwangi',
         timezone: 'Asia/Jakarta',
