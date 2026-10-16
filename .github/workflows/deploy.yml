@@ -1,0 +1,30 @@
+name: Auto Deploy Backend to VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy to Production VPS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Server via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: 22
+          script: |
+            cd /home/miomideveloper/backend-smart-academic-assistant
+            git config --global --add safe.directory /home/miomideveloper/backend-smart-academic-assistant
+            git fetch --all
+            git reset --hard origin/main
+            chmod +x deploy.sh
+            ./deploy.sh
