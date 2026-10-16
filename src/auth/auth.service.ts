@@ -25,7 +25,7 @@ export class AuthService {
         email: decoded.email,
         name: dto.name || decoded.name || 'Tim Udah Pasti Menang',
         photoUrl: decoded.picture || null,
-        university: dto.university || 'Universitas Siliwangi',
+        university: dto.university || 'Politeknik Negeri Indramayu',
         timezone: 'Asia/Jakarta',
       },
     });

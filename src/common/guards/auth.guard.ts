@@ -59,7 +59,7 @@ export class AuthGuard implements CanActivate {
             email: decoded.email,
             name: decoded.name || 'Tim Udah Pasti Menang',
             photoUrl: decoded.picture || null,
-            university: 'Universitas Siliwangi',
+            university: 'Politeknik Negeri Indramayu',
             timezone: 'Asia/Jakarta',
           },
         });

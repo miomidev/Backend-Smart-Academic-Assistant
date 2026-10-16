@@ -20,7 +20,7 @@ async function main() {
       firebaseUid: 'dev-firebase-uid-001',
       email: 'mahasiswa@unsil.ac.id',
       name: 'Tim Udah Pasti Menang',
-      university: 'Universitas Siliwangi',
+      university: 'Politeknik Negeri Indramayu',
       timezone: 'Asia/Jakarta',
     },
   });
